@@ -77,9 +77,9 @@ const job = channel =>
 
 function resetMembers () {
   members.clear()      // empty current Set
-  const newMembers = loadMembers()  // returns a fresh Set of IDs
+  const newMembers = loadMembers()
   for (const id of newMembers) {
-    members.add(id)    // repopulate
+    members.add(id)
   }
 }
 
