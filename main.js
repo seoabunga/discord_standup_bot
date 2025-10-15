@@ -1,4 +1,5 @@
 const schedule = require('node-schedule')
+const express = require('express')
 const { Client, GatewayIntentBits } = require('discord.js')
 
 if (process.env.NODE_ENV !== 'production') {
@@ -82,3 +83,19 @@ function resetMembers () {
 }
 
 client.login(process.env.BOT_TOKEN)
+
+// ----------------------------
+// Express keep-alive server
+// Keeps Render from idling the bot after 15 minutes of inactivity
+// ----------------------------
+const app = express()
+
+app.get('/', (req, res) => {
+  res.send('Discord bot is running and awake!')
+})
+
+// Render sets PORT automatically
+const PORT = process.env.PORT || 3000
+app.listen(PORT, () => {
+  console.log(`Keep-alive web server listening on port ${PORT}`)
+})
