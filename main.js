@@ -46,8 +46,6 @@ client.on('messageCreate', msg => {
 })
 
 const job = channel =>
-  // TEST
-  // schedule.scheduleJob(new Date(Date.now() + 1*60*100), () => {
   schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
     resetMembers()
 
