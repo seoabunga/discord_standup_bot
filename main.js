@@ -13,7 +13,6 @@ let channel = undefined
 
 client.on('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`)
-  console.log("Current time in heroku dyno: ", new Date().getDay())
   channel = client.channels.cache.get(process.env.BOT_RESIDING_CHANNEL_ID)
   job(channel)
 })
@@ -38,15 +37,19 @@ client.on('message', msg => {
 })
 
 const job = channel =>
-  schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
+  schedule.scheduleJob(new Date(Date.now() + 1*60*1000), () => {
+  // schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
     resetMembers()
 
     let current = new Date()
     current.setHours(current.getHours() - constants.TIME_DIFF) // time diff between Render and local time
 
     if (current.getTime() < projectEnd.getTime()) {
+      console.log('Sending standup message to channel...')
       channel.send(
-        `==================================================\n=== ${current} ===\n
+        `   =====================================================\n
+         ${current} \n
+         =====================================================\n
         Good morning @everyone!
         Please reply to this message with what you did *yesterday*,
         what you will do *today*,
