@@ -46,24 +46,32 @@ client.on('messageCreate', msg => {
 })
 
 const job = channel =>
-  schedule.scheduleJob(new Date(Date.now() + 1*60*100), () => {
-  // schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
+  // TEST
+  // schedule.scheduleJob(new Date(Date.now() + 1*60*100), () => {
+  schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
     resetMembers()
 
     let current = new Date()
+    const currentStr = current.toString()
+    const lineLength = Math.max(currentStr.length, 60)
+    const line = '='.repeat(currentStr.length)
     current.setHours(current.getHours() - constants.TIME_DIFF) // time diff between Render and local time
 
+    const message = [
+      line,
+      currentStr.padStart((lineLength + currentStr.length) / 2).padEnd(lineLength),
+      line,
+      '',
+      'Good morning @everyone!',
+      'Please reply to this message with:',
+      '• what you did *yesterday*',
+      '• what you will do *today*',
+      '• any *blockers* you are dealing with',
+      '',
+  ].join('\n')
+
     if (current.getTime() < projectEnd.getTime()) {
-      channel.send(
-        `    =====================================================\n
-         ${current} \n
-         =====================================================\n
-        Good morning @everyone!
-        Please reply to this message with what you did *yesterday*,
-        what you will do *today*,
-        and any *blockers* you are dealing with.
-        `
-      )
+      channel.send(message)
     }
   })
 
