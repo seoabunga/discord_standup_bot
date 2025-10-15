@@ -20,7 +20,7 @@ let members = loadMembers()
 const projectEnd = new Date('Dec 5, 2025 23:59:59') // End of Term - Dec 5th, 2025 (TBD)
 let channel = undefined
 
-client.on('ready', () => {
+client.on('clientReady', () => {
   console.log(`Logged in as ${client.user.tag}!`)
   channel = client.channels.cache.get(process.env.BOT_RESIDING_CHANNEL_ID)
   job(channel)
