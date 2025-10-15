@@ -1,13 +1,22 @@
-const constants = require('./constants')
 const schedule = require('node-schedule')
-const Discord = require('discord.js')
-const client = new Discord.Client()
+const { Client, GatewayIntentBits } = require('discord.js')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
 
-let members = new Set()
+const constants = require('./constants')
+const { loadMembers } = require('./members')
+
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,           // lets the bot connect to servers
+    GatewayIntentBits.GuildMessages,    // receive message events from servers
+    GatewayIntentBits.MessageContent    // lets the bot read message text
+  ]
+})
+
+let members = loadMembers()
 const projectEnd = new Date('Dec 5, 2025 23:59:59') // End of Term - Dec 5th, 2025 (TBD)
 let channel = undefined
 
@@ -37,7 +46,7 @@ client.on('messageCreate', msg => {
 })
 
 const job = channel =>
-  schedule.scheduleJob(new Date(Date.now() + 1*60*1000), () => {
+  schedule.scheduleJob(new Date(Date.now() + 1*60*100), () => {
   // schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
     resetMembers()
 
@@ -45,9 +54,8 @@ const job = channel =>
     current.setHours(current.getHours() - constants.TIME_DIFF) // time diff between Render and local time
 
     if (current.getTime() < projectEnd.getTime()) {
-      console.log('Sending standup message to channel...')
       channel.send(
-        `   =====================================================\n
+        `    =====================================================\n
          ${current} \n
          =====================================================\n
         Good morning @everyone!
@@ -60,8 +68,10 @@ const job = channel =>
   })
 
 function resetMembers () {
-  for (let member of Object.values(constants.members)) {
-    members.add(member)
+  members.clear()      // empty current Set
+  const newMembers = loadMembers()  // returns a fresh Set of IDs
+  for (const id of newMembers) {
+    members.add(id)    // repopulate
   }
 }
 
