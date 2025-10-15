@@ -17,7 +17,7 @@ client.on('ready', () => {
   job(channel)
 })
 
-client.on('message', msg => {
+client.on('messageCreate', msg => {
   const message = msg.content.toLowerCase()
   if (message.includes('yesterday') && message.includes('today')) {
     if (members.has(msg.author.id)) {
