@@ -29,6 +29,10 @@ client.on('clientReady', () => {
 
 client.on('messageCreate', msg => {
   const message = msg.content.toLowerCase()
+
+  const membersData = JSON.parse(process.env.MEMBERS || '{}')
+  const totalMembers = Object.values(membersData).length
+
   if (message.includes('yesterday') && message.includes('today')) {
     if (members.has(msg.author.id)) {
       msg
@@ -38,8 +42,7 @@ client.on('messageCreate', msg => {
           if (members.size === 0) {
             channel.send('Thank you everyone for participating in today\'s daily standup!')
           } else {
-            channel.send(`${members.size} / ${Object.values(constants.members).length} left.`)
-          }
+            channel.send(`${members.size} / ${totalMembers} left.`)          }
         })
         .catch(e => console.error(e))
     }
