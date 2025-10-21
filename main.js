@@ -30,7 +30,7 @@ client.on('clientReady', () => {
 client.on('messageCreate', msg => {
   const message = msg.content.toLowerCase()
 
-  const membersData = JSON.parse(process.env.MEMBERS || '{}')
+  const membersData = JSON.parse(process.env.MEMBERS_JSON || '{}')
   const totalMembers = Object.keys(membersData).length
 
   if (message.includes('yesterday') && message.includes('today')) {
