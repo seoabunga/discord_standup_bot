@@ -2,6 +2,8 @@ const schedule = require('node-schedule')
 const express = require('express')
 const { Client, GatewayIntentBits } = require('discord.js')
 
+const TIME_ZONE = 'America/Vancouver';
+
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 }
@@ -50,32 +52,47 @@ client.on('messageCreate', msg => {
 })
 
 const job = channel =>
-  schedule.scheduleJob('00 00 17 * * 1-5', () => { // Render runs in UTC (7 hrs ahead of local time) => triggers at 10:00AM local (17:00 UTC) Mon–Fri
-    resetMembers()
+  schedule.scheduleJob(
+    {
+      hour: 10, // 10 AM local
+      minute: 0,
+      dayOfWeek: [1, 2, 3, 4, 5],
+      tz: TIME_ZONE
+    },
+    () => {
+      resetMembers()
 
-    let current = new Date()
-    const currentStr = current.toString()
-    const lineLength = Math.max(currentStr.length, 60)
-    const line = '='.repeat(currentStr.length)
-    current.setHours(current.getHours() - constants.TIME_DIFF) // time diff between Render and local time
+      const current = new Date()
 
-    const message = [
-      line,
-      currentStr.padStart((lineLength + currentStr.length) / 2).padEnd(lineLength),
-      line,
-      '',
-      'Good morning @everyone!',
-      'Please reply to this message with:',
-      '• what you did *yesterday*',
-      '• what you will do *today*',
-      '• any *blockers* you are dealing with',
-      '',
-  ].join('\n')
+      // Format with local timezone and DST automatically
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: TIME_ZONE,
+        dateStyle: 'full',
+        timeStyle: 'long'
+      })
 
-    if (current.getTime() < projectEnd.getTime()) {
-      channel.send(message)
+      const formattedDate = formatter.format(current)
+      const lineLength = Math.max(formattedDate.length, 60)
+      const line = '='.repeat(lineLength)
+
+      const message = [
+        line,
+        formattedDate.padStart((lineLength + formattedDate.length) / 2).padEnd(lineLength),
+        line,
+        '',
+        'Good morning @everyone!',
+        'Please reply to this message with:',
+        '• what you did *yesterday*',
+        '• what you will do *today*',
+        '• any *blockers* you are dealing with',
+        '',
+      ].join('\n')
+
+      if (current.getTime() < projectEnd.getTime()) {
+        channel.send(message)
+      }
     }
-  })
+  )
 
 function resetMembers () {
   members.clear()      // empty current Set
